@@ -3,22 +3,9 @@ import datetime
 import logging
 import fire
 import requests
-import pymongo
-import wechatsogou
 
 from utils import extract_time_from_title, extract_time_from_content
-
-
-LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
-DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"
-logging.basicConfig(filename='outdoor.log',
-        level=logging.DEBUG, format=LOG_FORMAT, datefmt=DATE_FORMAT)
-
-
-client = pymongo.MongoClient()
-outdoor_db = client.outdoor
-ws_api = wechatsogou.WechatSogouAPI(captcha_break_time=10)
-
+from conf import outdoor_db,ws_api
 
 
 class outDoor(object):

@@ -1,5 +1,6 @@
 import re
 import datetime
+from conf import outdoor_db
 
 
 def get_first_not_none(lst, v=None):
@@ -57,3 +58,27 @@ def extract_time_from_content(text):
         return start_time
     else:
         return None
+
+
+def get_activity_by_page(page, pagesize=10):
+    if pagesize is None:
+        pagesize = 10
+    for i in outdoor_db.article.find(
+            {
+                'start_time':{'$gt': datetime.datetime.now()}
+            },
+            {
+                '_id':0,
+                'title':1,
+                'created_at': 1,
+                'start_time': 1,
+                'wechat_name': 1,
+                'fileid': 1,
+                'content_url': 1
+            })\
+            .sort([('start_time',1)])\
+            .skip((page-1)*pagesize)\
+            .limit(pagesize):
+        i['created_at'] = i['created_at'].strftime('%Y-%m-%d')
+        i['start_time'] = i['start_time'].strftime('%Y-%m-%d')
+        yield i

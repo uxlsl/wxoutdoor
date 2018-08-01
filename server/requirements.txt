@@ -1,2 +1,4 @@
 python-fire
 wechatsogou
+flask
+flask-restful
