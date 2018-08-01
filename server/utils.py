@@ -60,7 +60,7 @@ def extract_time_from_content(text):
         return None
 
 
-def get_activity_by_page(page, pagesize=10):
+def get_activitys_by_page(page, pagesize=10):
     if pagesize is None:
         pagesize = 10
     for i in outdoor_db.article.find(
@@ -82,3 +82,8 @@ def get_activity_by_page(page, pagesize=10):
         i['created_at'] = i['created_at'].strftime('%Y-%m-%d')
         i['start_time'] = i['start_time'].strftime('%Y-%m-%d')
         yield i
+
+
+def get_activity(fileid):
+    fileid = int(fileid)
+    return outdoor_db.article.find_one({'fileid':fileid})
