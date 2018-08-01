@@ -17,20 +17,24 @@ def extract_time_from_title(text):
         r'|(?P<year2>\d{4})\.(?P<month2>\d{1,2})\.(?P<day2>\d{1,2})'
         r'|(?P<year3>\d{4})年【(?P<month3>\d{1,2})\.(?P<day3>\d{1,2})'
         r'|(?P<year4>\d{4})年(?P<month4>\d{1,2})月(?P<day4>\d{1,2})'
+        r'|(?P<month5>\d{1,2})\.(?P<day5>\d{1,2})'
         ), text)
     if m:
         d = m.groupdict()
         year = get_first_not_none(
-                (d.get('year{}'.format(i)) for i in range(1, 5)),
+                (d.get('year{}'.format(i)) for i in range(1, 6)),
                 now.year)
         month = get_first_not_none(
-                (d.get('month{}'.format(i)) for i in range(1, 5)),
+                (d.get('month{}'.format(i)) for i in range(1, 6)),
                 now.month)
         day  = get_first_not_none(
-                (d.get('day{}'.format(i)) for i in range(1, 5)),
+                (d.get('day{}'.format(i)) for i in range(1, 6)),
                 now.day)
         year, month, day = int(year), int(month),int(day)
-        return datetime.datetime(year,month, day)
+        if 1<=month<=12 and 1<=day<=31:
+            return datetime.datetime(year,month, day)
+        else:
+            return None
     else:
         return None
 

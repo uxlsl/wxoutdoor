@@ -76,7 +76,7 @@ class outDoor(object):
                 logging.error('无法更新 {}'.format(art['title']))
 
 
-    def test(self):
+    def update_outdoor_article_time(self):
         for art in outdoor_db.article.find():
             if 'content' not in art:
                 continue

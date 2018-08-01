@@ -8,3 +8,4 @@ def test_extract_time_from_title():
     assert extract_time_from_title('2018年【8.20-8.26】') == datetime(2018,8,20)
     assert extract_time_from_title('2018年8月4-9日') == datetime(2018,8,4)
     assert extract_time_from_title('5月26-27日') == datetime(2018,5,26)
+    assert extract_time_from_title('7.13-15') == datetime(2018,7,13)
