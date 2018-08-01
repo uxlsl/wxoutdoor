@@ -1,9 +1,12 @@
+import re
 import datetime
 import logging
 import fire
 import requests
 import pymongo
 import wechatsogou
+
+from utils import extract_time_from_title, extract_time_from_content
 
 
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
@@ -71,6 +74,22 @@ class outDoor(object):
                         art,upsert=True)
             except:
                 logging.error('无法更新 {}'.format(art['title']))
+
+
+    def test(self):
+        for art in outdoor_db.article.find():
+            if 'content' not in art:
+                continue
+            start_time = extract_time_from_title(art['title']) \
+                    or extract_time_from_content(art['content'])
+            if start_time:
+                art['start_time'] = start_time
+                outdoor_db.article.update(
+                        {'fileid':art['fileid']},
+                        art,upsert=True)
+            else:
+                logging.debug('无法发现开始时间 {} {}'.format(art['title'],
+                    art['content_url']))
 
 
 if __name__ == '__main__':
