@@ -71,12 +71,12 @@ def extract_time_from_content(text):
 def extract_money(html):
     text = HT.handle(html)
     m = re.search(
-            r'(?P<money1>\d+).*元/人'
-            r'|每人(?P<money2>\d+).*元'
+            r'每人(?P<money2>\d+).*元'
             r'|费用.*?(?P<money3>\d+).*?元'
             r'|活动费用.*?(?P<money4>\d+)RMB/人'
             r'|活动费用.*?(?P<money5>\d+)元'
             r'|每人(?P<money6>\d+)'
+            r'(?P<money1>\d+).*?元/人'
             ,
             text,
             flags=re.DOTALL)
