@@ -26,7 +26,12 @@ class outDoor(object):
         更新户外活动信息
         """
         for gzh in list(outdoor_db.gzh.find()):
-            results = ws_api.get_gzh_article_by_history(gzh['wechat_name'])
+            logging.info('正在更新公众号 {}'.format(gzh['wechat_name']))
+            try:
+                results = ws_api.get_gzh_article_by_history(gzh['wechat_name'])
+            except requests.exceptions.ReadTimeout:
+                logging.debug('请求超时')
+                continue
             for art in results['article']:
                 logging.debug(art)
                 art['wechat_name'] = gzh['wechat_name']
@@ -57,7 +62,7 @@ class outDoor(object):
         更新户外信息内容
         """
         for art in list(outdoor_db.article.find()):
-            logging.debug('更新 {}'.format(art['title']))
+            logging.debug('更新 {} {}'.format(art['title'], art['content_url']))
             try:
                 r = requests.get(art['content_url'], timeout=60)
                 art['content'] = r.text
