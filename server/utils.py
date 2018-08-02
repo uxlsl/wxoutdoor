@@ -97,8 +97,8 @@ def get_activitys_by_page(page, pagesize=10, before=None):
             'start_time':{'$gt': datetime.datetime.now()}
         }
     if before is not None:
-        f['start_time']={'$lt': datetime.datetime.now() \
-                + datetime.timedelta(days=before+1)}
+        f['start_time']['$lt'] = datetime.datetime.now() \
+                + datetime.timedelta(days=before+1)
     for i in outdoor_db.article.find(
             f,
             {
