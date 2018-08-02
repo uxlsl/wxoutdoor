@@ -60,13 +60,25 @@ def extract_time_from_content(text):
         return None
 
 
-def get_activitys_by_page(page, pagesize=10):
+def extract_money(text):
+    m = re.search(r'(\d+)元/人', text)
+    if m:
+        return m.groups()[0]
+    else:
+        return None
+
+
+def get_activitys_by_page(page, pagesize=10, before=None):
     if pagesize is None:
         pagesize = 10
+    f = {
+            'start_time':{'$gt': datetime.datetime.now()}
+        }
+    if before is not None:
+        f['start_time']={'$lt': datetime.datetime.now() \
+                + datetime.timedelta(days=before+1)}
     for i in outdoor_db.article.find(
-            {
-                'start_time':{'$gt': datetime.datetime.now()}
-            },
+            f,
             {
                 '_id':0,
                 'title':1,
@@ -74,9 +86,9 @@ def get_activitys_by_page(page, pagesize=10):
                 'start_time': 1,
                 'wechat_name': 1,
                 'fileid': 1,
-                'content_url': 1
+                'money': 1,
             })\
-            .sort([('start_time',1)])\
+            .sort([('start_time',1), ('_id', 1)])\
             .skip((page-1)*pagesize)\
             .limit(pagesize):
         i['created_at'] = i['created_at'].strftime('%Y-%m-%d')

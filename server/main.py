@@ -4,7 +4,7 @@ import logging
 import fire
 import requests
 
-from utils import extract_time_from_title, extract_time_from_content
+from utils import extract_time_from_title, extract_time_from_content,extract_money
 from conf import outdoor_db,ws_api
 
 
@@ -42,6 +42,9 @@ class outDoor(object):
         for art in list(outdoor_db.article.find()):
             art['created_at'] = datetime.datetime.fromtimestamp(
                     art['datetime'])
+            if 'content' not in art:
+                continue
+            art['money'] = extract_money(art['content'])
             outdoor_db.article.update(
                     {'fileid':art['fileid']},
                     art,upsert=True)
