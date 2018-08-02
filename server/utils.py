@@ -5,43 +5,34 @@ import html2text
 
 from conf import outdoor_db
 
-
-
-
 HT = html2text.HTML2Text()
 
 
 def get_first_not_none(lst, v=None):
-    return next(
-            (item for item in lst if item is not None),
-            v)
+    return next((item for item in lst if item is not None), v)
+
 
 def extract_time_from_title(text):
     """
     提取第一个时间
     """
     now = datetime.datetime.now()
-    m = re.search((
-        r'(?P<month1>\d{1,2})月(?P<day1>\d{1,2})'
-        r'|(?P<year2>\d{4})\.(?P<month2>\d{1,2})\.(?P<day2>\d{1,2})'
-        r'|(?P<year3>\d{4})年【(?P<month3>\d{1,2})\.(?P<day3>\d{1,2})'
-        r'|(?P<year4>\d{4})年(?P<month4>\d{1,2})月(?P<day4>\d{1,2})'
-        r'|(?P<month5>\d{1,2})\.(?P<day5>\d{1,2})'
-        ), text)
+    m = re.search((r'(?P<month1>\d{1,2})月(?P<day1>\d{1,2})'
+                   r'|(?P<year2>\d{4})\.(?P<month2>\d{1,2})\.(?P<day2>\d{1,2})'
+                   r'|(?P<year3>\d{4})年【(?P<month3>\d{1,2})\.(?P<day3>\d{1,2})'
+                   r'|(?P<year4>\d{4})年(?P<month4>\d{1,2})月(?P<day4>\d{1,2})'
+                   r'|(?P<month5>\d{1,2})\.(?P<day5>\d{1,2})'), text)
     if m:
         d = m.groupdict()
         year = get_first_not_none(
-                (d.get('year{}'.format(i)) for i in range(1, 6)),
-                now.year)
+            (d.get('year{}'.format(i)) for i in range(1, 6)), now.year)
         month = get_first_not_none(
-                (d.get('month{}'.format(i)) for i in range(1, 6)),
-                now.month)
-        day  = get_first_not_none(
-                (d.get('day{}'.format(i)) for i in range(1, 6)),
-                now.day)
-        year, month, day = int(year), int(month),int(day)
-        if 1<=month<=12 and 1<=day<=31:
-            return datetime.datetime(year,month, day)
+            (d.get('month{}'.format(i)) for i in range(1, 6)), now.month)
+        day = get_first_not_none(
+            (d.get('day{}'.format(i)) for i in range(1, 6)), now.day)
+        year, month, day = int(year), int(month), int(day)
+        if 1 <= month <= 12 and 1 <= day <= 31:
+            return datetime.datetime(year, month, day)
         else:
             return None
     else:
@@ -55,13 +46,13 @@ def extract_time_from_content(text):
         r'|旅行时间[^\d]*(?P<year3>\d{4})[^\d]*年[^\d]*(?P<month3>\d{1,2})[^\d]*月[^\d]*(?P<day3>\d{1,2})'
         r'|活动日期[^d]*(?P<year4>\d{4})\.(?P<month4>\d{1,2})\.(?P<day4>\d{1,2})'
         r'|时间[^\d]*(?P<year5>\d{4})[^\d]*年[^\d]*(?P<month5>\d{1,2})[^\d]*月[^\d]*(?P<day5>\d{1,2})'
-        ), text)
+    ), text)
     if m:
         d = m.groupdict()
         year = d['year1'] or d['year2'] or d['year3'] or d['year4'] or d['year5']
         month = d['month1'] or d['month2'] or d['month3'] or d['month4'] or d['month5']
         day = d['day1'] or d['day2'] or d['day3'] or d['day4'] or d['day5']
-        year, month, day = int(year),int(month), int(day)
+        year, month, day = int(year), int(month), int(day)
         start_time = datetime.datetime(year=year, month=month, day=day)
         return start_time
     else:
@@ -71,34 +62,45 @@ def extract_time_from_content(text):
 def extract_money(html):
     text = HT.handle(html)
     m = re.search(
-            r'每人(?P<money2>\d+).*元'
-            r'|费用.*?(?P<money3>\d+).*?元'
-            r'|活动费用.*?(?P<money4>\d+)RMB/人'
-            r'|活动费用.*?(?P<money5>\d+)元'
-            r'|每人(?P<money6>\d+)'
-            r'(?P<money1>\d+).*?元/人'
-            ,
-            text,
-            flags=re.DOTALL)
+        r'每人(?P<money2>\d+).*元'
+        r'|费用.*?(?P<money3>\d+).*?元'
+        r'|活动费用.*?(?P<money4>\d+)RMB/人'
+        r'|活动费用.*?(?P<money5>\d+)元'
+        r'|每人(?P<money6>\d+)'
+        r'(?P<money1>\d+).*?元/人',
+        text,
+        flags=re.DOTALL)
     if m:
         d = m.groupdict()
         money = get_first_not_none(
-                (d.get('money{}'.format(i)) for i in range(1, 7)),
-                None)
+            (d.get('money{}'.format(i)) for i in range(1, 7)), None)
         return money
     else:
         return None
 
 
-def get_activitys_by_page(page, pagesize=10, before=None):
+def get_activitys_by_page(page, pagesize=10, before=None, key=None):
+    if page is None or page <= 0:
+        page = 1
     if pagesize is None:
         pagesize = 10
-    f = {
-            'start_time':{'$gt': datetime.datetime.now()}
-        }
-    if before is not None:
+    f = {'start_time': {'$gt': datetime.datetime.now()}}
+    if before is not None and before:
         f['start_time']['$lt'] = datetime.datetime.now() \
                 + datetime.timedelta(days=before+1)
+    if key is not None and key:
+        f['$or'] = [
+            {
+                'wechat_name': {
+                    '$regex': key
+                }
+            },
+            {
+                'title': {
+                    '$regex': key
+                }
+            },
+        ]
     for i in outdoor_db.article.find(
             f,
             {
@@ -120,4 +122,4 @@ def get_activitys_by_page(page, pagesize=10, before=None):
 
 def get_activity(fileid):
     fileid = int(fileid)
-    return outdoor_db.article.find_one({'fileid':fileid})
+    return outdoor_db.article.find_one({'fileid': fileid})

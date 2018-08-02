@@ -19,9 +19,13 @@ class HelloWorld(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('page', type=int)
         parser.add_argument('pagesize', type=int)
+        parser.add_argument('before', type=int)
+        parser.add_argument('key', type=str)
         args = parser.parse_args()
         return list(get_activitys_by_page(args['page'],
-            args['pagesize']))
+            args['pagesize'],
+            args['before'],
+            args['key']))
 
 api.add_resource(HelloWorld, '/hello')
 

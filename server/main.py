@@ -4,8 +4,8 @@ import logging
 import fire
 import requests
 
-from utils import extract_time_from_title, extract_time_from_content,extract_money
-from conf import outdoor_db,ws_api
+from utils import extract_time_from_title, extract_time_from_content, extract_money
+from conf import outdoor_db, ws_api
 
 
 class outDoor(object):
@@ -17,8 +17,9 @@ class outDoor(object):
             gzhs = ws_api.search_gzh('广州 户外', page=page)
             for gzh in gzhs:
                 outdoor_db.gzh.update(
-                        {'wechat_id':gzh['wechat_id']},
-                        gzh, upsert=True)
+                    {
+                        'wechat_id': gzh['wechat_id']
+                    }, gzh, upsert=True)
                 logging.debug(gzh)
 
     def update_outdoor_article(self):
@@ -37,8 +38,9 @@ class outDoor(object):
                 art['wechat_name'] = gzh['wechat_name']
                 art['wechat_id'] = gzh['wechat_id']
                 outdoor_db.article.update(
-                        {'fileid':art['fileid']},
-                        art,upsert=True)
+                    {
+                        'fileid': art['fileid']
+                    }, art, upsert=True)
 
     def handle_outdoor_article(self):
         """
@@ -46,16 +48,17 @@ class outDoor(object):
         """
         for art in list(outdoor_db.article.find()):
             art['created_at'] = datetime.datetime.fromtimestamp(
-                    art['datetime'])
+                art['datetime'])
             if 'content' not in art:
                 continue
             art['money'] = extract_money(art['content'])
             if art['money'] is None:
-                logging.debug('{} {}:无法提取活动价'.format(art['title'], art['fileid']))
+                logging.debug('{} {}:无法提取活动价'.format(art['title'],
+                                                     art['fileid']))
             outdoor_db.article.update(
-                    {'fileid':art['fileid']},
-                    art,upsert=True)
-
+                {
+                    'fileid': art['fileid']
+                }, art, upsert=True)
 
     def update_outdoor_article_content(self):
         """
@@ -67,11 +70,11 @@ class outDoor(object):
                 r = requests.get(art['content_url'], timeout=60)
                 art['content'] = r.text
                 outdoor_db.article.update(
-                        {'fileid':art['fileid']},
-                        art,upsert=True)
+                    {
+                        'fileid': art['fileid']
+                    }, art, upsert=True)
             except:
                 logging.error('无法更新 {}'.format(art['title']))
-
 
     def update_outdoor_article_time(self):
         for art in outdoor_db.article.find():
@@ -82,11 +85,12 @@ class outDoor(object):
             if start_time:
                 art['start_time'] = start_time
                 outdoor_db.article.update(
-                        {'fileid':art['fileid']},
-                        art,upsert=True)
+                    {
+                        'fileid': art['fileid']
+                    }, art, upsert=True)
             else:
                 logging.debug('无法发现开始时间 {} {}'.format(art['title'],
-                    art['content_url']))
+                                                      art['content_url']))
 
 
 if __name__ == '__main__':
