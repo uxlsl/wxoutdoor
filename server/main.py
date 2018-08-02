@@ -45,6 +45,8 @@ class outDoor(object):
             if 'content' not in art:
                 continue
             art['money'] = extract_money(art['content'])
+            if art['money'] is None:
+                logging.debug('{} {}:无法提取活动价'.format(art['title'], art['fileid']))
             outdoor_db.article.update(
                     {'fileid':art['fileid']},
                     art,upsert=True)

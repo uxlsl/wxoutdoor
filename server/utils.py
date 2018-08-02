@@ -1,6 +1,14 @@
 import re
 import datetime
+
+import html2text
+
 from conf import outdoor_db
+
+
+
+
+HT = html2text.HTML2Text()
 
 
 def get_first_not_none(lst, v=None):
@@ -60,10 +68,24 @@ def extract_time_from_content(text):
         return None
 
 
-def extract_money(text):
-    m = re.search(r'(\d+)元/人', text)
+def extract_money(html):
+    text = HT.handle(html)
+    m = re.search(
+            r'(?P<money1>\d+).*元/人'
+            r'|每人(?P<money2>\d+).*元'
+            r'|费用.*?(?P<money3>\d+).*?元'
+            r'|活动费用.*?(?P<money4>\d+)RMB/人'
+            r'|活动费用.*?(?P<money5>\d+)元'
+            r'|每人(?P<money6>\d+)'
+            ,
+            text,
+            flags=re.DOTALL)
     if m:
-        return m.groups()[0]
+        d = m.groupdict()
+        money = get_first_not_none(
+                (d.get('money{}'.format(i)) for i in range(1, 7)),
+                None)
+        return money
     else:
         return None
 
