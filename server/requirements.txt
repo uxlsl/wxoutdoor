@@ -1,5 +1,6 @@
-python-fire
+fire
 wechatsogou
 flask
 flask-restful
 pymongo
+html2text
