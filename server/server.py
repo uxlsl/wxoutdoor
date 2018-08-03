@@ -1,9 +1,7 @@
-from flask import Flask,request,Response
-from flask_restful import Resource, Api,reqparse
+from flask import Flask, Response, request
+from flask_restful import Api, Resource, reqparse
 
 from utils import HT, get_activity, get_activitys_by_page
-
-
 
 app = Flask(__name__)
 api = Api(app)

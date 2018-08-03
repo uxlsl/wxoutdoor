@@ -1,7 +1,8 @@
 import logging
+import os
+
 import pymongo
 import wechatsogou
-
 
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"
@@ -10,5 +11,5 @@ logging.basicConfig(filename='outdoor.log',
 
 ws_api = wechatsogou.WechatSogouAPI(captcha_break_time=10)
 
-client = pymongo.MongoClient()
+client = pymongo.MongoClient(os.environ.get('MONGO_URI'))
 outdoor_db = client.outdoor
