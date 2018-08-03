@@ -1,7 +1,7 @@
-from flask import Flask,request
+from flask import Flask,request,Response
 from flask_restful import Resource, Api,reqparse
 
-from utils import get_activity, get_activitys_by_page
+from utils import HT, get_activity, get_activitys_by_page
 
 
 
@@ -11,7 +11,12 @@ api = Api(app)
 
 @app.route('/art')
 def art():
-    return get_activity(request.args.get('fileid'))['content']
+    type = request.args.get('type', 'html')
+    content = get_activity(request.args.get('fileid'))['content']
+    if type == 'markdown':
+        content = HT.handle(content)
+        return Response(content, mimetype='text/markdown')
+    return content
 
 
 class HelloWorld(Resource):
