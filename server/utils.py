@@ -4,6 +4,7 @@ import re
 import html2text
 
 from conf import outdoor_db
+from bson.son import SON
 
 HT = html2text.HTML2Text()
 
@@ -123,3 +124,30 @@ def get_activitys_by_page(page, pagesize=10, before=None, key=None):
 def get_activity(fileid):
     fileid = int(fileid)
     return outdoor_db.article.find_one({'fileid': fileid})
+
+
+def get_activity_outdoor_agg(before=None):
+    """
+    返回户外活动的总数量
+    """
+    f = {'start_time': {'$gt': datetime.datetime.now()}}
+    if before is not None and before:
+        f['start_time']['$lt'] = datetime.datetime.now() \
+                + datetime.timedelta(days=before+1)
+
+    for item in  outdoor_db.article.aggregate([
+        {'$match': f},
+        {'$group': {
+            '_id': {
+                'wechat_name': '$wechat_name'
+            },
+            'total': {
+                '$sum': 1
+            }
+        }
+    },
+        {'$sort': SON([('total',-1)])}
+        ]):
+        _id = item.pop('_id')
+        item.update(_id)
+        yield item
