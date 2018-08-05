@@ -1,8 +1,12 @@
 import logging
 import os
 
+from dotenv import load_dotenv
 import pymongo
 import wechatsogou
+
+
+load_dotenv(verbose=True)
 
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"
