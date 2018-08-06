@@ -4,6 +4,7 @@ import re
 
 import fire
 import requests
+import traceback
 
 from conf import outdoor_db, ws_api
 from utils import (extract_money, extract_time_from_content,
@@ -29,11 +30,16 @@ class outDoor(object):
         更新户外活动信息
         """
         for gzh in outdoor_db.gzh.find(no_cursor_timeout=True):
+            if 'wechat_name' not in gzh:
+                continue
             logging.info('正在更新公众号 {}'.format(gzh['wechat_name']))
             try:
                 results = ws_api.get_gzh_article_by_history(gzh['wechat_name'])
             except requests.exceptions.ReadTimeout:
                 logging.debug('请求超时')
+                continue
+            except Exception as e:
+                logging.error(traceback.format_exc())
                 continue
             for art in results['article']:
                 logging.debug(art)
