@@ -13,11 +13,12 @@ def get_first_not_none(lst, v=None):
     return next((item for item in lst if item is not None), v)
 
 
-def extract_time_from_title(text):
+def extract_time_from_title(text, ref_time=None):
     """
     提取第一个时间
     """
-    now = datetime.datetime.now()
+    if ref_time is None:
+        ref_time = datetime.datetime.now()
     m = re.search((r'(?P<month1>\d{1,2})月(?P<day1>\d{1,2})'
                    r'|(?P<year2>\d{4})\.(?P<month2>\d{1,2})\.(?P<day2>\d{1,2})'
                    r'|(?P<year3>\d{4})年【(?P<month3>\d{1,2})\.(?P<day3>\d{1,2})'
@@ -26,14 +27,17 @@ def extract_time_from_title(text):
     if m:
         d = m.groupdict()
         year = get_first_not_none(
-            (d.get('year{}'.format(i)) for i in range(1, 6)), now.year)
+            (d.get('year{}'.format(i)) for i in range(1, 6)), ref_time.year)
         month = get_first_not_none(
-            (d.get('month{}'.format(i)) for i in range(1, 6)), now.month)
+            (d.get('month{}'.format(i)) for i in range(1, 6)), ref_time.month)
         day = get_first_not_none(
-            (d.get('day{}'.format(i)) for i in range(1, 6)), now.day)
+            (d.get('day{}'.format(i)) for i in range(1, 6)), ref_time.day)
         year, month, day = int(year), int(month), int(day)
         if 1 <= month <= 12 and 1 <= day <= 31:
-            return datetime.datetime(year, month, day)
+            result =  datetime.datetime(year, month, day)
+            if (result - ref_time).days > 180:
+                return None
+            return result
         else:
             return None
     else:

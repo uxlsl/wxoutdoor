@@ -28,7 +28,7 @@ class outDoor(object):
         """
         更新户外活动信息
         """
-        for gzh in list(outdoor_db.gzh.find()):
+        for gzh in outdoor_db.gzh.find(no_cursor_timeout=True):
             logging.info('正在更新公众号 {}'.format(gzh['wechat_name']))
             try:
                 results = ws_api.get_gzh_article_by_history(gzh['wechat_name'])
@@ -48,7 +48,7 @@ class outDoor(object):
         """
         处理文章一些数据
         """
-        for art in list(outdoor_db.article.find()):
+        for art in outdoor_db.article.find(no_cursor_timeout=True):
             art['created_at'] = datetime.datetime.fromtimestamp(
                 art['datetime'])
             if 'content' not in art:
@@ -66,7 +66,7 @@ class outDoor(object):
         """
         更新户外信息内容
         """
-        for art in list(outdoor_db.article.find()):
+        for art in outdoor_db.article.find(no_cursor_timeout=True):
             logging.debug('更新 {} {}'.format(art['title'], art['content_url']))
             try:
                 r = requests.get(art['content_url'], timeout=60)
@@ -79,10 +79,10 @@ class outDoor(object):
                 logging.error('无法更新 {}'.format(art['title']))
 
     def update_outdoor_article_time(self):
-        for art in outdoor_db.article.find():
+        for art in outdoor_db.article.find(no_cursor_timeout=True):
             if 'content' not in art:
                 continue
-            start_time = extract_time_from_title(art['title']) \
+            start_time = extract_time_from_title(art['title'], art['created_at']) \
                     or extract_time_from_content(art['content'])
             if start_time:
                 art['start_time'] = start_time
