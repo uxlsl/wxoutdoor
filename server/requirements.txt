@@ -1,7 +1,6 @@
 fire
 wechatsogou
 flask
-flask-restful
 pymongo
 html2text
 python-dotenv

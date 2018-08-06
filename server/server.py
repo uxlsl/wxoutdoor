@@ -1,5 +1,4 @@
 from flask import Flask, Response, request, jsonify
-from flask_restful import Api, Resource, reqparse
 
 from utils import (HT, get_activity, get_activitys_by_page,
                    get_activity_outdoor_agg)
@@ -25,20 +24,16 @@ def arg_agg():
     return jsonify(list(results))
 
 
-class HelloWorld(Resource):
-    def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('page', type=int)
-        parser.add_argument('pagesize', type=int)
-        parser.add_argument('before', type=int)
-        parser.add_argument('key', type=str)
-        args = parser.parse_args()
-        return list(
-            get_activitys_by_page(args['page'], args['pagesize'],
-                                  args['before'], args['key']))
+@app.route('/hello')
+def hello():
+    page = request.args.get('page', 1)
+    pagesize = request.args.get('pagesize', 10)
+    before = request.args.get('before', None)
+    key = request.args.get('key', '')
+    return jsonify(list(
+        get_activitys_by_page(page, pagesize,
+                              before, key)))
 
-
-api.add_resource(HelloWorld, '/hello')
 
 if __name__ == '__main__':
     app.run(debug=True)
