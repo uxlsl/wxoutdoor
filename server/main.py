@@ -72,7 +72,8 @@ class outDoor(object):
         """
         更新户外信息内容
         """
-        for art in outdoor_db.article.find(no_cursor_timeout=True):
+        for art in outdoor_db.article.find({'content':{'$exists': False}},
+                no_cursor_timeout=True):
             logging.debug('更新 {} {}'.format(art['title'], art['content_url']))
             try:
                 r = requests.get(art['content_url'], timeout=60)
