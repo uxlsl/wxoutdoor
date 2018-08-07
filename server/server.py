@@ -4,7 +4,6 @@ from utils import (HT, get_activity, get_activitys_by_page,
                    get_activity_outdoor_agg)
 
 app = Flask(__name__)
-api = Api(app)
 
 
 @app.route('/art')
@@ -26,8 +25,8 @@ def arg_agg():
 
 @app.route('/hello')
 def hello():
-    page = request.args.get('page', 1)
-    pagesize = request.args.get('pagesize', 10)
+    page = int(request.args.get('page', 1))
+    pagesize = int(request.args.get('pagesize', 10))
     before = request.args.get('before', None)
     key = request.args.get('key', '')
     return jsonify(list(
